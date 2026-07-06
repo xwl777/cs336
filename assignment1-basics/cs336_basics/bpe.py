@@ -1,5 +1,7 @@
 import regex as re
 from collections import defaultdict
+from .serialization import *
+from typing import Iterator, Iterable
 
 PAT = re.compile(r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+""")# pre-tokenization的正则表达式
 
@@ -11,6 +13,8 @@ def read_text(input_path:str):
 
 # 根据特殊字符切分原始文本
 def special_split(special_tokens:list[str], text:str, drop = True):
+    if not special_tokens:
+        return [text]
     special_tokens = sorted(special_tokens, key=len, reverse=True)
     pattern = "|".join([re.escape(token) for token in special_tokens])
 
@@ -119,6 +123,7 @@ def update_cnt(word_cnt:dict, pair_cnt:dict, pairs2word:dict[tuple[bytes, bytes]
     return word_cnt, pair_cnt, pairs2word
 
 
+
 def train_bpe(input_path:str, vocab_size:int, special_tokens:list[str]):
     text = read_text(input_path)
     chunks = special_split(special_tokens, text)
@@ -141,4 +146,64 @@ def train_bpe(input_path:str, vocab_size:int, special_tokens:list[str]):
         vocab[len(vocab)] = merge_pair[0] + merge_pair[1]
 
     return vocab, merges
+
+
+###以下是实现encoding和decoding所需的辅助函数###
+
+# 在一个word中实现所有可执行的merge
+def encoding_merge(word:str,merge_rank:dict[tuple[bytes,bytes],int]):
+    word_bytes_lst = list(word2byte(word))
+    # merge_rank = {merge:i for i, merge in enumerate(merges)}
+    while True:
+        min_rank = len(merge_rank)
+        merge_pos = -1
+        for i in range(len(word_bytes_lst) - 1):
+            pair = (word_bytes_lst[i], word_bytes_lst[i + 1])
+            if pair in merge_rank and merge_rank[pair] < min_rank:
+                min_rank, merge_pos = merge_rank[pair], i 
+        if merge_pos == -1:
+            break
+
+        word_bytes_lst[merge_pos:merge_pos+2] = [word_bytes_lst[merge_pos] + word_bytes_lst[merge_pos+1]]
+    return tuple(word_bytes_lst)
+
+def chunk2tokens(chunk:str,merge_rank:dict[tuple[bytes,bytes],int], inversed_vocab:dict):
+    word_lst = list()
+    tokens = list()
+    for m in PAT.finditer(chunk):
+        word = m.group()
+        tokens.extend([inversed_vocab[wordbytes] for wordbytes in encoding_merge(word, merge_rank)])
+        
+        
+    return tokens
+
+class Tokenizer:
+    def __init__(self, vocab:dict, merges:list, special_tokens:list[str] = None, **kargs):
+        self.vocab = vocab
+        self.merges = merges
+        self.special_tokens = special_tokens
+        self.bytes2id = {v:k for k, v in self.vocab.items()}
+        self.merge_rank = {merge:i for i, merge in enumerate(self.merges)}
+
+    def from_files(cls, vocab_filepath, merges_filepath, special_tokens=None):
+        vocab, merges = load_tokenizer_yaml(vocab_filepath, merges_filepath)
+        return cls(vocab, merges, special_tokens = special_tokens)
+    
+    def encode(self, text:str):
+        tokens = list()
+        chunks = special_split(self.special_tokens, text, drop=False)
+        for chunk in chunks:
+            if self.special_tokens and chunk in self.special_tokens:
+                tokens.append(self.bytes2id[chunk.encode("utf-8")])
+            else:
+                tokens.extend(chunk2tokens(chunk, self.merge_rank, self.bytes2id))
+
+        return tokens
+    
+    def encode_iterable(self, iterable: Iterable[str]) -> Iterator[int]:
+        for chunk in iterable:
+            yield from self.encode(chunk)
+    
+    def decode(self, ids:list[int]):
+        return b"".join([self.vocab[id] for id in ids]).decode("utf-8","replace")
 
