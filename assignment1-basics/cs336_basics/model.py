@@ -171,7 +171,9 @@ class Transformer(nn.Module):
                  vocab_size:int,
                  num_layers:int,
                  device : torch.device | None = None,
-                 dtype : torch.dtype | None = None):
+                 dtype : torch.dtype | None = None,
+                 **kwargs
+                 ):
         super().__init__()
         rope = RotaryPositionalEmbedding(theta, d_model // num_heads, context_length, device=device)
         self.layers = nn.ModuleList([Transformer_block(d_model, num_heads, d_ff, rope, device=device, dtype = dtype) 
