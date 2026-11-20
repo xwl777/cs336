@@ -1,4 +1,5 @@
 import argparse
+import csv
 import timeit
 import statistics
 import torch.cuda.nvtx as nvtx
@@ -79,6 +80,8 @@ def benchmark(args):
     device = torch.device(args.device)
     model = build_model(args=args,device=device)
     model.train()
+    if args.compile:
+        model = torch.compile(model)
     optimizer = AdamW(model.parameters())
     x, y = get_bacth(args, device=device)
     amp_context = torch.autocast(device_type=device.type, dtype=torch.bfloat16) if args.mix_precision else nullcontext()
@@ -119,9 +122,57 @@ def benchmark(args):
 
     print(f"mode: {args.mode}")
     print(f"device: {device}")
+    print(f"compiled: {args.compile}")
     print(f"mean: {mean:.6f} s")
     print(f"std:  {std:.6f} s")
     print(f"times: {[round(t, 6) for t in times]}")
+
+    if args.output_csv:
+        fieldnames = [
+            "mode",
+            "compiled",
+            "device",
+            "batch_size",
+            "context_length",
+            "vocab_size",
+            "d_model",
+            "num_layers",
+            "num_heads",
+            "d_ff",
+            "mix_precision",
+            "warmup_steps",
+            "measurement_steps",
+            "mean_s",
+            "std_s",
+        ]
+        row = {
+            "mode": args.mode,
+            "compiled": args.compile,
+            "device": str(device),
+            "batch_size": args.batch_size,
+            "context_length": args.context_length,
+            "vocab_size": args.vocab_size,
+            "d_model": args.d_model,
+            "num_layers": args.num_layers,
+            "num_heads": args.num_heads,
+            "d_ff": args.d_ff,
+            "mix_precision": args.mix_precision,
+            "warmup_steps": args.warmup_steps,
+            "measurement_steps": args.measurement_steps,
+            "mean_s": mean,
+            "std_s": std,
+        }
+        try:
+            with open(args.output_csv, newline="") as f:
+                has_header = bool(f.readline())
+        except FileNotFoundError:
+            has_header = False
+
+        with open(args.output_csv, "a", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            if not has_header:
+                writer.writeheader()
+            writer.writerow(row)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -145,6 +196,8 @@ if __name__ == "__main__":
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
 
     parser.add_argument("--mix_precision", action="store_true")
+    parser.add_argument("--compile", action="store_true")
+    parser.add_argument("--output_csv", type=str, default=None)
     parser.add_argument("--memory_profile", action="store_true")
     parser.add_argument("--memory_profile_path", type=str, default="memory_snapshot.pickle")
     args = parser.parse_args()

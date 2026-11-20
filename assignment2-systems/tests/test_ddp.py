@@ -1,4 +1,5 @@
 import logging
+from contextlib import nullcontext
 from copy import deepcopy
 
 import pytest
@@ -24,18 +25,19 @@ from .common import (
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.parametrize("grad_accum_steps", [1, 2])
 @pytest.mark.parametrize("model_class", [ToyModel, ToyModelWithTiedWeights])
-def test_DistributedDataParallel(model_class):
+def test_DistributedDataParallel(model_class, grad_accum_steps):
     world_size = 2
     mp.spawn(
         _test_DistributedDataParallel,
-        args=(world_size, model_class),
+        args=(world_size, model_class, grad_accum_steps),
         nprocs=world_size,
         join=True,
     )
 
 
-def _test_DistributedDataParallel(rank: int, world_size: int, model_class: type[torch.nn.Module]):
+def _test_DistributedDataParallel(rank: int, world_size: int, model_class: type[torch.nn.Module], grad_accum_steps: int):
     # Use gloo backend for CPU
     device = _setup_process_group(rank=rank, world_size=world_size, backend="gloo")
     # Execute barrier prior to running test to ensure that every process
@@ -122,13 +124,28 @@ def _test_DistributedDataParallel(rank: int, world_size: int, model_class: type[
         offset = rank * local_bs
         ddp_data = all_x[offset : offset + local_bs, :].to(device)
         ddp_labels = all_y[offset : offset + local_bs, :].to(device)
-        ddp_outputs = ddp_model(ddp_data)
-        ddp_loss = loss_fn(ddp_outputs, ddp_labels)
-        ddp_loss.backward()
+        for micro_batch, (micro_x, micro_y) in enumerate(
+            zip(ddp_data.chunk(grad_accum_steps), ddp_labels.chunk(grad_accum_steps))
+        ):
+            context = ddp_model.no_sync() if micro_batch < grad_accum_steps - 1 else nullcontext()
+            with context:
+                ddp_outputs = ddp_model(micro_x)
+                ddp_loss = loss_fn(ddp_outputs, micro_y) / grad_accum_steps
+                ddp_loss.backward()
+            if micro_batch < grad_accum_steps - 1:
+                assert not ddp_model.handles
+
+        assert ddp_model.handles
 
         # Run student-written code that needs to execute after the backward pass,
         # but before the optimizer step (e.g., to wait for all DDP ranks to sync gradients)
         ddp_on_after_backward(ddp_model, ddp_optimizer)
+        assert not ddp_model.handles
+        averaged_grads = [p.grad.clone() for p in ddp_model.parameters() if p.grad is not None]
+        # Repeated finish must not divide already averaged gradients again.
+        ddp_on_after_backward(ddp_model, ddp_optimizer)
+        for grad, parameter in zip(averaged_grads, (p for p in ddp_model.parameters() if p.grad is not None)):
+            assert torch.equal(grad, parameter.grad)
 
         ddp_optimizer.step()
 

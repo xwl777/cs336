@@ -1,0 +1,38 @@
+{
+  "seed": 2026,
+  "sample_size": 20,
+  "population_nonempty_documents": 19325,
+  "policy": "document predominantly NSFW/toxic; contextual quotation/jokes noted separately",
+  "manual_harmful_count": 0,
+  "manual_harmful_fraction": 0.0,
+  "predicted_harmful_count": 0,
+  "predicted_harmful_fraction": 0.0,
+  "errors": [],
+  "threshold_checks": [
+    {
+      "threshold": 0.5,
+      "rejected": 0,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "threshold": 0.8,
+      "rejected": 0,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "threshold": 0.9,
+      "rejected": 0,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "threshold": 0.95,
+      "rejected": 0,
+      "false_positives": 0,
+      "false_negatives": 0
+    }
+  ],
+  "limitations": "20 documents from one WARC; no reliable population rate or calibrated optimal threshold"
+}

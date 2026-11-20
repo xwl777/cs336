@@ -16,20 +16,24 @@ def decode(
     device = next(model.parameters()).device
 
     input_ids = tokenizer.encode(prompt)
-    input_ids = input_ids[-context_length:] if context_length < len(prompt) else input_ids
+    # input_ids = input_ids[-context_length:] if context_length < len(input_ids) else input_ids
+
+    model.eval()
 
     with torch.no_grad():
         for _ in range(max_new_tokens):
-            x = torch.Tensor(input_ids, device=device)
+            context_ids = input_ids[-context_length:] if context_length < len(input_ids) else input_ids
+            x = torch.tensor(context_ids, device=device, dtype = torch.long)
+            x = x.unsqueeze(0)
             logits = model(x)[0, -1, :]
             logits /= temperature
-            logits -= logits.max(dim = -1)
+            logits -= logits.max(dim = -1).values
             exp = torch.exp(logits)
             exp_sum = exp.sum(dim = -1)
             probs = exp / exp_sum
             probs_sorted, idx_sorted = torch.sort(probs, descending=True)
-            cumsum = torch.cumsum(probs_sorted)
-            cutoff_idx = torch.searchsorted(cumsum, top_p)
+            cumsum = torch.cumsum(probs_sorted, dim=-1)
+            cutoff_idx = torch.searchsorted(cumsum, top_p) + 1
 
             trimmed_probs = probs_sorted[:cutoff_idx]
             trimmed_idxs = idx_sorted[:cutoff_idx]

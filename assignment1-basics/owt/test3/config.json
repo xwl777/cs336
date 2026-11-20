@@ -1,0 +1,47 @@
+{
+    "train_data": "../out/tokens/owt-train/tokens.bin",
+    "eval_data": "../out/tokens/owt-valid/tokens.bin",
+
+    "device": "cuda",
+    "dtype": "float32",
+
+    "batch_size": 64,
+    "context_length": 256,
+    "max_iter": 1000,
+    "grad_acc_step": 2,
+
+    "lr_max": 0.0015,
+    "lr_min": 0.00001,
+    "T_warmup": 1000,
+    "T_cos": 10000,
+
+    "max_norm": 1.0,
+
+    "checkpoint_interval": 5000,
+    "eval_interval": 250,
+    "num_eval_batch": 50,
+
+    "run_dir": "../owt/test3",
+    "seed": 42,
+
+    "use_swanlab": true,
+    "swanlab_project_name": "cs336-a1-owt",
+    "swanlab_name": "test3",
+
+    "model": {
+      "vocab_size": 10000,
+      "context_length": 256,
+      "d_model": 1024,
+      "num_layers": 10,
+      "num_heads": 16,
+      "d_ff": 2752,
+      "rope_theta": 10000
+    },
+
+    "optimizer": {
+      "lr": 0.001,
+      "weight_decay": 0.01,
+      "betas": [0.9, 0.95],
+      "eps": 0.00000001
+    }
+  }

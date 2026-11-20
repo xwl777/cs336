@@ -1,0 +1,14 @@
+{
+  "positive_source": "Wikipedia external links; original API responses retained",
+  "negative_source": "data/html_text_comparison/extracted.jsonl.gz",
+  "seed": 42,
+  "english_min_confidence": 0.5,
+  "word_count_range": [
+    100,
+    100000
+  ],
+  "deduplication": "SHA256 of lowercase whitespace-normalized text across both classes",
+  "positive_documents": 260,
+  "eligible_cc_documents": 6304,
+  "sampled_cc_documents": 260
+}

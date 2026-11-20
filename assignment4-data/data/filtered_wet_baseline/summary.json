@@ -1,0 +1,146 @@
+{
+  "inputs": [
+    "/Users/lwx/cs336/assignment4-data/data/example.warc.wet.gz"
+  ],
+  "settings": {
+    "english_threshold": 0.7,
+    "min_words": 50,
+    "max_words": 100000,
+    "min_alphabetic_fraction": 0.8,
+    "nsfw_threshold": 0.9,
+    "toxic_threshold": 0.9,
+    "quality_threshold": 0.5
+  },
+  "workers": 2,
+  "chunk_size": 1000,
+  "chunks": 20,
+  "input_documents": 19637,
+  "kept_documents": 1659,
+  "removed_documents": 17978,
+  "retention_fraction": 0.08448337322401589,
+  "stages": {
+    "nonempty": {
+      "entered": 19637,
+      "kept": 19637,
+      "removed": 0,
+      "worker_seconds": 0.014621220325352624,
+      "removed_fraction_of_stage_input": 0.0,
+      "removed_fraction_of_all_input": 0.0,
+      "share_of_all_removed": 0.0
+    },
+    "english": {
+      "entered": 19637,
+      "kept": 5842,
+      "removed": 13795,
+      "worker_seconds": 8.316969796593185,
+      "removed_fraction_of_stage_input": 0.702500381932067,
+      "removed_fraction_of_all_input": 0.702500381932067,
+      "share_of_all_removed": 0.7673267326732673
+    },
+    "length": {
+      "entered": 5842,
+      "kept": 5375,
+      "removed": 467,
+      "worker_seconds": 0.11121959495358169,
+      "removed_fraction_of_stage_input": 0.07993837726805889,
+      "removed_fraction_of_all_input": 0.023781636706217853,
+      "share_of_all_removed": 0.02597619312493047
+    },
+    "alphabetic": {
+      "entered": 5375,
+      "kept": 5108,
+      "removed": 267,
+      "worker_seconds": 0.9851867205143208,
+      "removed_fraction_of_stage_input": 0.04967441860465116,
+      "removed_fraction_of_all_input": 0.013596781585781943,
+      "share_of_all_removed": 0.01485148514851485
+    },
+    "nsfw": {
+      "entered": 5108,
+      "kept": 5105,
+      "removed": 3,
+      "worker_seconds": 5.05451129564608,
+      "removed_fraction_of_stage_input": 0.0005873140172278779,
+      "removed_fraction_of_all_input": 0.00015277282680653867,
+      "share_of_all_removed": 0.0001668706196462343
+    },
+    "toxic": {
+      "entered": 5105,
+      "kept": 5103,
+      "removed": 2,
+      "worker_seconds": 5.815917363463086,
+      "removed_fraction_of_stage_input": 0.0003917727717923604,
+      "removed_fraction_of_all_input": 0.00010184855120435912,
+      "share_of_all_removed": 0.00011124707976415619
+    },
+    "quality": {
+      "entered": 5103,
+      "kept": 1661,
+      "removed": 3442,
+      "worker_seconds": 1.4155704553850228,
+      "removed_fraction_of_stage_input": 0.6745051930237116,
+      "removed_fraction_of_all_input": 0.17528135662270206,
+      "share_of_all_removed": 0.1914562242741128
+    },
+    "pii": {
+      "entered": 1661,
+      "kept": 1661,
+      "removed": 0,
+      "worker_seconds": 0.6750633048068266,
+      "removed_fraction_of_stage_input": 0.0,
+      "removed_fraction_of_all_input": 0.0,
+      "share_of_all_removed": 0.0
+    },
+    "exact_document_dedup": {
+      "entered": 1661,
+      "kept": 1659,
+      "removed": 2,
+      "worker_seconds": 0.08807849399454426,
+      "removed_fraction_of_stage_input": 0.0012040939193257074,
+      "removed_fraction_of_all_input": 0.00010184855120435912,
+      "share_of_all_removed": 0.00011124707976415619
+    }
+  },
+  "timing": {
+    "ingestion_wall_seconds": 2.4937031250010477,
+    "filtering_wall_seconds": 12.162778708006954,
+    "merge_wall_seconds": 0.9784052500035614,
+    "total_wall_seconds": 15.63498862501001
+  },
+  "before_dedup_modified_documents": 512,
+  "final_modified_documents": 512,
+  "pii_replacements_before_dedup": {
+    "emails": 585,
+    "phones": 590,
+    "ips": 24
+  },
+  "final_characters": 13088094,
+  "notes": [
+    "Stage worker_seconds sum CPU-process wall durations, not end-to-end wall time; includes lazy model loading.",
+    "Exact document dedup keeps the first whitespace-normalized masked document; line and fuzzy dedup not enabled.",
+    "training.txt.gz is readable text with blank separators; use filtered.jsonl.gz for explicit document boundaries.",
+    "No Paloma validation text is used; this run does not demonstrate validation perplexity improvements."
+  ],
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.13.3",
+    "logical_cpus": 10,
+    "total_ram_gib": 16.0
+  },
+  "input_compressed_bytes": 63436883,
+  "throughput": {
+    "documents_per_second": 1255.9650966799106,
+    "compressed_megabytes_per_second": 4.05736675103973
+  },
+  "extrapolation_same_sized_same_mix_files": {
+    "2500_files_hours": 10.857630989590284,
+    "warning": "Single mixed-language WET sample extrapolation; not a measurement of the supplied English corpus or whole crawl."
+  },
+  "whole_crawl_extrapolation": {
+    "manifest": "https://data.commoncrawl.org/crawl-data/CC-MAIN-2026-12/wet.paths.gz",
+    "files": 100000,
+    "days_if_every_file_matches_sample": 18.09605164931714,
+    "warning": "Estimate only; equal file size/language mix/sustained throughput, excludes download and global dedup scaling."
+  }
+}

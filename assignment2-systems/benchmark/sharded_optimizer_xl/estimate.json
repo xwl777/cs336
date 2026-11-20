@@ -1,0 +1,25 @@
+{
+  "kind": "analytic_model_state_storage_NOT_measured_peak",
+  "num_params": 1015118400,
+  "parameter_dtype": "float32",
+  "parameters_bytes": 4060473600,
+  "gradients_bytes": 4060473600,
+  "initialization_model_state_bytes": 4060473600,
+  "first_before_optimizer_model_state_bytes": 8120947200,
+  "unsharded_optimizer_state_bytes": 8120947200,
+  "unsharded_after_and_steady_model_state_bytes": 16241894400,
+  "ranks": [
+    {
+      "rank": 0,
+      "owned_numel": 523558400,
+      "sharded_optimizer_state_bytes": 4188467200,
+      "sharded_after_and_steady_model_state_bytes": 12309414400
+    },
+    {
+      "rank": 1,
+      "owned_numel": 491560000,
+      "sharded_optimizer_state_bytes": 3932480000,
+      "sharded_after_and_steady_model_state_bytes": 12053427200
+    }
+  ]
+}

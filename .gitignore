@@ -1,3 +1,11 @@
+.DS_Store
+/.gitignore.save
+.venv/
+.pytest_cache/
+.ruff_cache/
 
-  assignment1-basics/data/
-  assignment1-basics/.venv/
+/assignment*/data/
+/assignment1-basics/out/tokens/
+/assignment1-basics/profile_*.out
+/assignment1-basics/scalene-profile.*
+*.safetensors

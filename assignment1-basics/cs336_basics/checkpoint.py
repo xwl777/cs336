@@ -26,8 +26,13 @@ def save_checkpoint(model:torch.nn.Module,
 
 def load_checkpoint(src:str | os.PathLike | typing.BinaryIO | typing.IO[bytes], 
                     model:torch.nn.Module, 
-                    optimizer:torch.optim.Optimizer):
-    message = torch.load(src)
+                    optimizer:torch.optim.Optimizer,
+                    weights_only:bool=False):
+    message = torch.load(src,weights_only=weights_only)
     model.load_state_dict(message["model"])
     optimizer.load_state_dict(message["optimizer"])
     return message["iteration"], message["rng_state"],message["swanlab_id"]
+
+def load_model(src:str | os.PathLike | typing.BinaryIO | typing.IO[bytes], model:torch.nn.Module):
+    message = torch.load(src, weights_only=False)
+    model.load_state_dict(message["model"])

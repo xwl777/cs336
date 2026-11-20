@@ -1,0 +1,352 @@
+{
+  "sharded_to_unsharded_time_ratio": 1.2705657533789738,
+  "slowdown_percent": 27.05657533789738,
+  "reports": {
+    "unsharded": {
+      "mode": "unsharded",
+      "device": "cpu",
+      "world_size": 2,
+      "torch_version": "2.11.0",
+      "gpu_names": [],
+      "model_config": {
+        "d_model": 16,
+        "num_heads": 2,
+        "num_layers": 2,
+        "d_ff": 32,
+        "context_length": 8,
+        "vocab_size": 32,
+        "rope_theta": 10000.0
+      },
+      "num_params": 6224,
+      "optimizer_cls": "cs336_basics.optimizer.AdamW",
+      "parameter_dtype": "float32",
+      "bf16_autocast": false,
+      "micro_batch_size": 2,
+      "grad_accum_steps": 2,
+      "global_batch_tokens": 64,
+      "warmup_steps": 1,
+      "measurement_steps": 3,
+      "mean_step_ms": 11.254555667013241,
+      "std_step_ms": 0.3938552222267989,
+      "ranks": [
+        {
+          "rank": 0,
+          "initialization": {
+            "checkpoint": "after_initialization",
+            "parameters_bytes": 24896,
+            "gradients_bytes": 0,
+            "optimizer_states_bytes": 0,
+            "buffers_bytes": 256,
+            "allocated_bytes": null,
+            "reserved_bytes": null,
+            "phase_peak_allocated_bytes": null,
+            "phase_peak_reserved_bytes": null,
+            "other_live_bytes": null
+          },
+          "first_step": {
+            "before": {
+              "checkpoint": "before_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 0,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            },
+            "after": {
+              "checkpoint": "after_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 49792,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            }
+          },
+          "steady_step": {
+            "before": {
+              "checkpoint": "before_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 49792,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            },
+            "after": {
+              "checkpoint": "after_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 49792,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            }
+          },
+          "step_seconds": [
+            0.011405625002225861,
+            0.010802042001159862,
+            0.011520125000970438
+          ]
+        },
+        {
+          "rank": 1,
+          "initialization": {
+            "checkpoint": "after_initialization",
+            "parameters_bytes": 24896,
+            "gradients_bytes": 0,
+            "optimizer_states_bytes": 0,
+            "buffers_bytes": 256,
+            "allocated_bytes": null,
+            "reserved_bytes": null,
+            "phase_peak_allocated_bytes": null,
+            "phase_peak_reserved_bytes": null,
+            "other_live_bytes": null
+          },
+          "first_step": {
+            "before": {
+              "checkpoint": "before_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 0,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            },
+            "after": {
+              "checkpoint": "after_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 49792,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            }
+          },
+          "steady_step": {
+            "before": {
+              "checkpoint": "before_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 49792,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            },
+            "after": {
+              "checkpoint": "after_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 49792,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            }
+          },
+          "step_seconds": [
+            0.011441499998909421,
+            0.010711541995988227,
+            0.01135762500052806
+          ]
+        }
+      ]
+    },
+    "sharded": {
+      "mode": "sharded",
+      "device": "cpu",
+      "world_size": 2,
+      "torch_version": "2.11.0",
+      "gpu_names": [],
+      "model_config": {
+        "d_model": 16,
+        "num_heads": 2,
+        "num_layers": 2,
+        "d_ff": 32,
+        "context_length": 8,
+        "vocab_size": 32,
+        "rope_theta": 10000.0
+      },
+      "num_params": 6224,
+      "optimizer_cls": "cs336_basics.optimizer.AdamW",
+      "parameter_dtype": "float32",
+      "bf16_autocast": false,
+      "micro_batch_size": 2,
+      "grad_accum_steps": 2,
+      "global_batch_tokens": 64,
+      "warmup_steps": 1,
+      "measurement_steps": 3,
+      "mean_step_ms": 14.299653000004279,
+      "std_step_ms": 1.5369311923943305,
+      "ranks": [
+        {
+          "rank": 0,
+          "initialization": {
+            "checkpoint": "after_initialization",
+            "parameters_bytes": 24896,
+            "gradients_bytes": 0,
+            "optimizer_states_bytes": 0,
+            "buffers_bytes": 256,
+            "allocated_bytes": null,
+            "reserved_bytes": null,
+            "phase_peak_allocated_bytes": null,
+            "phase_peak_reserved_bytes": null,
+            "other_live_bytes": null
+          },
+          "first_step": {
+            "before": {
+              "checkpoint": "before_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 0,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            },
+            "after": {
+              "checkpoint": "after_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 28928,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            }
+          },
+          "steady_step": {
+            "before": {
+              "checkpoint": "before_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 28928,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            },
+            "after": {
+              "checkpoint": "after_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 28928,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            }
+          },
+          "step_seconds": [
+            0.012829957995563745,
+            0.014158209000015631,
+            0.015895958000328392
+          ]
+        },
+        {
+          "rank": 1,
+          "initialization": {
+            "checkpoint": "after_initialization",
+            "parameters_bytes": 24896,
+            "gradients_bytes": 0,
+            "optimizer_states_bytes": 0,
+            "buffers_bytes": 256,
+            "allocated_bytes": null,
+            "reserved_bytes": null,
+            "phase_peak_allocated_bytes": null,
+            "phase_peak_reserved_bytes": null,
+            "other_live_bytes": null
+          },
+          "first_step": {
+            "before": {
+              "checkpoint": "before_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 0,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            },
+            "after": {
+              "checkpoint": "after_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 20864,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            }
+          },
+          "steady_step": {
+            "before": {
+              "checkpoint": "before_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 20864,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            },
+            "after": {
+              "checkpoint": "after_optimizer_step",
+              "parameters_bytes": 24896,
+              "gradients_bytes": 24896,
+              "optimizer_states_bytes": 20864,
+              "buffers_bytes": 256,
+              "allocated_bytes": null,
+              "reserved_bytes": null,
+              "phase_peak_allocated_bytes": null,
+              "phase_peak_reserved_bytes": null,
+              "other_live_bytes": null
+            }
+          },
+          "step_seconds": [
+            0.012838333001127467,
+            0.014095499995164573,
+            0.01590241699886974
+          ]
+        }
+      ]
+    }
+  }
+}

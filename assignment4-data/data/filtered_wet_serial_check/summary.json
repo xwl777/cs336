@@ -1,0 +1,135 @@
+{
+  "inputs": [
+    "/Users/lwx/cs336/assignment4-data/data/example.warc.wet.gz"
+  ],
+  "settings": {
+    "english_threshold": 0.7,
+    "min_words": 50,
+    "max_words": 100000,
+    "min_alphabetic_fraction": 0.8,
+    "nsfw_threshold": 0.9,
+    "toxic_threshold": 0.9,
+    "quality_threshold": 0.5
+  },
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.12.13",
+    "logical_cpus": 10
+  },
+  "input_compressed_bytes": 63436883,
+  "workers": 1,
+  "chunk_size": 1000,
+  "chunks": 20,
+  "input_documents": 19637,
+  "kept_documents": 1659,
+  "removed_documents": 17978,
+  "retention_fraction": 0.08448337322401589,
+  "stages": {
+    "nonempty": {
+      "entered": 19637,
+      "kept": 19637,
+      "removed": 0,
+      "worker_seconds": 0.012055366241838783,
+      "removed_fraction_of_stage_input": 0.0,
+      "removed_fraction_of_all_input": 0.0,
+      "share_of_all_removed": 0.0
+    },
+    "english": {
+      "entered": 19637,
+      "kept": 5842,
+      "removed": 13795,
+      "worker_seconds": 7.28017800328962,
+      "removed_fraction_of_stage_input": 0.702500381932067,
+      "removed_fraction_of_all_input": 0.702500381932067,
+      "share_of_all_removed": 0.7673267326732673
+    },
+    "length": {
+      "entered": 5842,
+      "kept": 5375,
+      "removed": 467,
+      "worker_seconds": 0.1024596825154731,
+      "removed_fraction_of_stage_input": 0.07993837726805889,
+      "removed_fraction_of_all_input": 0.023781636706217853,
+      "share_of_all_removed": 0.02597619312493047
+    },
+    "alphabetic": {
+      "entered": 5375,
+      "kept": 5108,
+      "removed": 267,
+      "worker_seconds": 0.9580492154636886,
+      "removed_fraction_of_stage_input": 0.04967441860465116,
+      "removed_fraction_of_all_input": 0.013596781585781943,
+      "share_of_all_removed": 0.01485148514851485
+    },
+    "nsfw": {
+      "entered": 5108,
+      "kept": 5105,
+      "removed": 3,
+      "worker_seconds": 2.0011495876678964,
+      "removed_fraction_of_stage_input": 0.0005873140172278779,
+      "removed_fraction_of_all_input": 0.00015277282680653867,
+      "share_of_all_removed": 0.0001668706196462343
+    },
+    "toxic": {
+      "entered": 5105,
+      "kept": 5103,
+      "removed": 2,
+      "worker_seconds": 2.2851625991315814,
+      "removed_fraction_of_stage_input": 0.0003917727717923604,
+      "removed_fraction_of_all_input": 0.00010184855120435912,
+      "share_of_all_removed": 0.00011124707976415619
+    },
+    "quality": {
+      "entered": 5103,
+      "kept": 1661,
+      "removed": 3442,
+      "worker_seconds": 1.132589788932819,
+      "removed_fraction_of_stage_input": 0.6745051930237116,
+      "removed_fraction_of_all_input": 0.17528135662270206,
+      "share_of_all_removed": 0.1914562242741128
+    },
+    "pii": {
+      "entered": 1661,
+      "kept": 1661,
+      "removed": 0,
+      "worker_seconds": 0.682840876004775,
+      "removed_fraction_of_stage_input": 0.0,
+      "removed_fraction_of_all_input": 0.0,
+      "share_of_all_removed": 0.0
+    },
+    "exact_document_dedup": {
+      "entered": 1661,
+      "kept": 1659,
+      "removed": 2,
+      "worker_seconds": 0.08350196476385463,
+      "removed_fraction_of_stage_input": 0.0012040939193257074,
+      "removed_fraction_of_all_input": 0.00010184855120435912,
+      "share_of_all_removed": 0.00011124707976415619
+    }
+  },
+  "timing": {
+    "ingestion_wall_seconds": 2.6625996670045424,
+    "filtering_wall_seconds": 15.83329949999461,
+    "merge_wall_seconds": 0.9206905409955652,
+    "total_wall_seconds": 19.41695941700891
+  },
+  "before_dedup_modified_documents": 512,
+  "final_modified_documents": 512,
+  "pii_replacements_before_dedup": {
+    "emails": 585,
+    "phones": 590,
+    "ips": 24
+  },
+  "final_characters": 13088094,
+  "notes": [
+    "Stage worker_seconds sum CPU-process wall durations, not end-to-end wall time; includes lazy model loading.",
+    "Exact document dedup keeps the first whitespace-normalized masked document; line and fuzzy dedup not enabled.",
+    "training.txt.gz is readable text with blank separators; use filtered.jsonl.gz for explicit document boundaries.",
+    "No Paloma validation text is used; this run does not demonstrate validation perplexity improvements."
+  ],
+  "throughput": {
+    "documents_per_second": 1011.3323913525995,
+    "compressed_megabytes_per_second": 3.2670863464044952
+  }
+}

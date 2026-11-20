@@ -1,4 +1,5 @@
 import regex as re
+import random
 from collections import defaultdict
 from .serialization import *
 from typing import Iterator, Iterable
@@ -125,7 +126,19 @@ def update_cnt(word_cnt:dict, pair_cnt:dict, pairs2word:dict[tuple[bytes, bytes]
 
 
 def train_bpe(input_path:str, vocab_size:int, special_tokens:list[str]):
-    text = read_text(input_path)
+    with open(input_path, "r", encoding="utf-8") as f:
+        sample = []
+        for i, line in enumerate(f, start=1):
+            if i % 1000000 == 0:
+                print(f"read line:{i}")
+            if i <= 5000000:
+                sample.append(line)
+            else:
+                j = random.randint(1, i)
+                if j <= 10000:
+                    sample[j-1] = line
+    text = "".join(sample)
+    print("读取文本完成")
     chunks = special_split(special_tokens, text)
     print("special tokens 分割完成")
     cnt_lst = list(map(count_word, chunks))
@@ -185,6 +198,7 @@ class Tokenizer:
         self.bytes2id = {v:k for k, v in self.vocab.items()}
         self.merge_rank = {merge:i for i, merge in enumerate(self.merges)}
 
+    @classmethod
     def from_files(cls, vocab_filepath, merges_filepath, special_tokens=None):
         vocab, merges = load_tokenizer_yaml(vocab_filepath, merges_filepath)
         return cls(vocab, merges, special_tokens = special_tokens)

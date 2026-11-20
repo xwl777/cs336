@@ -1,0 +1,44 @@
+{
+  "seed": 42,
+  "sample_size": 20,
+  "model": "lid.176.bin",
+  "fasttext_version": "0.9.3",
+  "label_policy": "predominant language of extracted text; mixed/boilerplate cases noted separately",
+  "population_nonempty_documents": 19325,
+  "manual_english_count": 11,
+  "manual_english_fraction": 0.55,
+  "predicted_english_count": 11,
+  "predicted_english_fraction": 0.55,
+  "correct_count": 20,
+  "errors": [],
+  "english_threshold_checks": [
+    {
+      "threshold": 0.5,
+      "kept": 11,
+      "true_english_kept": 11,
+      "false_english_kept": 0,
+      "manual_english_missed": 0
+    },
+    {
+      "threshold": 0.8,
+      "kept": 4,
+      "true_english_kept": 4,
+      "false_english_kept": 0,
+      "manual_english_missed": 7
+    },
+    {
+      "threshold": 0.9,
+      "kept": 2,
+      "true_english_kept": 2,
+      "false_english_kept": 0,
+      "manual_english_missed": 9
+    },
+    {
+      "threshold": 0.95,
+      "kept": 1,
+      "true_english_kept": 1,
+      "false_english_kept": 0,
+      "manual_english_missed": 10
+    }
+  ]
+}

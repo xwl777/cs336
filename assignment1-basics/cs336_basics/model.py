@@ -2,12 +2,30 @@ import torch.nn as nn
 import torch
 import math
 from einops import einsum, rearrange, reduce
+import torch.cuda.nvtx as nvtx
 
 
 def softmax(x:torch.Tensor, dim:int):
     x_max = x.max(dim = dim, keepdim=True).values
     x_exp = torch.exp(x - x_max)
     return x_exp / torch.sum(x_exp, dim=dim, keepdim=True)
+
+
+@nvtx.range("scaled dot product attention")
+def annotated_scaled_dot_product_attention(q:torch.Tensor, k:torch.Tensor, v:torch.Tensor, mask:torch.Tensor | None = None):
+    d_k = q.shape[-1]
+    with nvtx.range("computing attention scores"):
+    # compute attention scores between Q and K
+        atten = einsum(q, k, "... seq_q d_k, ... seq_k d_k -> ... seq_q seq_k") / math.sqrt(d_k)
+    if mask is not None:
+            atten = torch.where(mask, atten, float("-inf"))
+    with nvtx.range("computing softmax"):
+    # compute softmax of attention scores
+        score = softmax(atten, dim = -1)
+    with nvtx.range("final matmul"):
+    # compute output projection
+        result = einsum(score, v, "... seq_q seq_k, ... seq_k d_v -> ... seq_q d_v")
+    return result
 
 def scaled_dot_product_attention(q:torch.Tensor, k:torch.Tensor, v:torch.Tensor, mask:torch.Tensor | None = None):
     d_k = q.shape[-1]
@@ -166,7 +184,7 @@ class Transformer(nn.Module):
     def __init__(self, d_model:int,
                  num_heads:int,
                  d_ff:int,
-                 theta:float,
+                 rope_theta:float,
                  context_length:int,
                  vocab_size:int,
                  num_layers:int,
@@ -175,7 +193,7 @@ class Transformer(nn.Module):
                  **kwargs
                  ):
         super().__init__()
-        rope = RotaryPositionalEmbedding(theta, d_model // num_heads, context_length, device=device)
+        rope = RotaryPositionalEmbedding(rope_theta, d_model // num_heads, context_length, device=device)
         self.layers = nn.ModuleList([Transformer_block(d_model, num_heads, d_ff, rope, device=device, dtype = dtype) 
                                      for _ in range(num_layers)])
         self.token_embeddings = Embedding(vocab_size, d_model, device=device, dtype=dtype)

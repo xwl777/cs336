@@ -1,0 +1,10 @@
+{
+  "identical_decompressed_outputs": {
+    "filtered.jsonl.gz": true,
+    "training.txt.gz": true
+  },
+  "identical_stage_counts": true,
+  "parallel_seconds": 15.63498862501001,
+  "serial_seconds": 19.41695941700891,
+  "speedup_in_this_run": 1.2418914962271985
+}

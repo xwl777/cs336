@@ -83,3 +83,43 @@ def _test_sharded_optimizer(rank: int, world_size: int, model_class: Type[torch.
             sharded_parameters.detach().cpu().numpy(),
         )
     _cleanup_process_group()
+
+
+def test_sharded_optimizer_param_groups():
+    mp.spawn(_test_sharded_optimizer_param_groups, args=(2,), nprocs=2, join=True)
+
+
+def _test_sharded_optimizer_param_groups(rank, world_size):
+    import torch.distributed as dist
+
+    _setup_process_group(rank=rank, world_size=world_size, backend="gloo")
+    try:
+        parameters = [torch.nn.Parameter(torch.tensor([float(i + 1)])) for i in range(3)]
+        baseline = [torch.nn.Parameter(p.detach().clone()) for p in parameters]
+        # Initially rank 1 owns no parameters: its local group must be empty.
+        sharded = get_sharded_optimizer([{"params": parameters[:1], "lr": 0.01}], torch.optim.AdamW, lr=0.1)
+        ordinary = torch.optim.AdamW([{"params": baseline[:1], "lr": 0.01}], lr=0.1)
+        for optimizer, values in [(sharded, parameters), (ordinary, baseline)]:
+            optimizer.add_param_group({"params": values[1:], "lr": 0.2})
+
+        for iteration in range(3):
+            # Emulate a scheduler editing the public groups.
+            sharded.param_groups[0]["lr"] = ordinary.param_groups[0]["lr"] = 0.03
+            for optimizer, values in [(sharded, parameters), (ordinary, baseline)]:
+                def closure():
+                    optimizer.zero_grad()
+                    loss = sum(p.square().sum() for p in values)
+                    loss.backward()
+                    return loss
+                result = optimizer.step(closure=closure)
+                assert result is not None
+            for parameter, expected in zip(parameters, baseline):
+                torch.testing.assert_close(parameter, expected)
+                replica = parameter.detach().clone()
+                dist.broadcast(replica, src=0)
+                torch.testing.assert_close(parameter, replica)
+            assert set(sharded.state) == {p for i, p in enumerate(parameters) if i % world_size == rank}
+            # Local checkpoint restore must keep the wrapped state connected.
+            sharded.load_state_dict(deepcopy(sharded.state_dict()))
+    finally:
+        _cleanup_process_group()

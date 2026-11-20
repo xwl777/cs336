@@ -247,3 +247,61 @@ def _test_fsdp_gradient_sync(rank: int, world_size: int, compute_dtype):
             )
 
     _cleanup_process_group()
+
+
+class _NativeTiedFSDPModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.embedding = nn.Embedding(5, 3, padding_idx=0)
+        self.linear = nn.Linear(3, 3)
+        self.linear.bias.requires_grad_(False)
+        self.head = nn.Linear(3, 5, bias=False)
+        self.head.weight = self.embedding.weight
+
+    def forward(self, token_ids):
+        return self.head(torch.tanh(self.linear(self.embedding(token_ids))))
+
+
+def test_fsdp_native_layers_adamw():
+    mp.spawn(_test_fsdp_native_layers_adamw, args=(2,), nprocs=2, join=True)
+
+
+def _test_fsdp_native_layers_adamw(rank, world_size):
+    from cs336_basics.optimizer import AdamW
+
+    device = _setup_process_group(rank, world_size, "gloo")
+    try:
+        torch.manual_seed(19)
+        baseline = _NativeTiedFSDPModel().to(device)
+        model = get_fsdp(deepcopy(baseline))
+        optimizer = AdamW(model.parameters(), lr=0.01)
+        ordinary = AdamW(baseline.parameters(), lr=0.01)
+        tokens = torch.tensor([[0, 1], [2, 3], [4, 1], [3, 2]], device=device)
+        labels = torch.tensor([[1, 2], [3, 4], [0, 2], [1, 0]], device=device)
+        for _ in range(3):
+            ordinary.zero_grad(set_to_none=True)
+            optimizer.zero_grad(set_to_none=True)
+            nn.functional.cross_entropy(baseline(tokens).reshape(-1, 5), labels.reshape(-1)).backward()
+            ordinary.step()
+            local_tokens = tokens.chunk(world_size)[rank]
+            local_labels = labels.chunk(world_size)[rank]
+            output = model(token_ids=local_tokens)
+            nn.functional.cross_entropy(output.reshape(-1, 5), local_labels.reshape(-1)).backward()
+            fsdp_on_after_backward(model, optimizer)
+            # Finish is idempotent, and standard assignment-1 AdamW sees only
+            # FP32 local master shards, with matching gradient shapes.
+            gradients = {p: p.grad.clone() for p in model.parameters() if p.grad is not None}
+            fsdp_on_after_backward(model, optimizer)
+            for parameter, gradient in gradients.items():
+                torch.testing.assert_close(parameter.grad, gradient)
+                assert parameter.dtype == torch.float32
+                assert parameter.grad.shape == parameter.shape
+            optimizer.step()
+            full = fsdp_gather_full_params(model)
+            for name, parameter in baseline.named_parameters():
+                torch.testing.assert_close(full[name], parameter, atol=2e-6, rtol=1e-4)
+            assert model.module.embedding.weight is model.module.head.weight
+            assert model.module.embedding.weight.numel() == 8  # 15 elements padded to 16
+            assert model.module.linear.bias.grad is None
+    finally:
+        _cleanup_process_group()

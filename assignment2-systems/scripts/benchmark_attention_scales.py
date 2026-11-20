@@ -45,7 +45,7 @@ def std_ms(times: list[float]) -> float:
     return 1000.0 * statistics.stdev(times) if len(times) > 1 else 0.0
 
 
-def run_config(seq_len: int, d_model: int, args: argparse.Namespace) -> dict[str, object]:
+def run_config(seq_len: int, d_model: int, implementation: str, attention_fn, args: argparse.Namespace) -> dict[str, object]:
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
 
@@ -54,7 +54,7 @@ def run_config(seq_len: int, d_model: int, args: argparse.Namespace) -> dict[str
         synchronize()
 
         for _ in range(args.warmup):
-            out = attention(q, k, v)
+            out = attention_fn(q, k, v)
             synchronize()
             out.backward(dout)
             synchronize()
@@ -64,7 +64,7 @@ def run_config(seq_len: int, d_model: int, args: argparse.Namespace) -> dict[str
         forward_times = []
         for _ in range(args.iters):
             start = time.perf_counter()
-            out = attention(q, k, v)
+            out = attention_fn(q, k, v)
             synchronize()
             forward_times.append(time.perf_counter() - start)
             del out
@@ -73,7 +73,7 @@ def run_config(seq_len: int, d_model: int, args: argparse.Namespace) -> dict[str
         memory_before_backward = []
         for _ in range(args.iters):
             clear_grads(q, k, v)
-            out = attention(q, k, v)
+            out = attention_fn(q, k, v)
             synchronize()
             memory_before_backward.append(torch.cuda.memory_allocated())
 
@@ -89,6 +89,7 @@ def run_config(seq_len: int, d_model: int, args: argparse.Namespace) -> dict[str
             "seq_len": seq_len,
             "d_model": d_model,
             "dtype": str(args.dtype).removeprefix("torch."),
+            "implementation": implementation,
             "status": "ok",
             "forward_mean_ms": mean_ms(forward_times),
             "forward_std_ms": std_ms(forward_times),
@@ -108,6 +109,7 @@ def run_config(seq_len: int, d_model: int, args: argparse.Namespace) -> dict[str
             "seq_len": seq_len,
             "d_model": d_model,
             "dtype": str(args.dtype).removeprefix("torch."),
+            "implementation": implementation,
             "status": "oom",
             "forward_mean_ms": "",
             "forward_std_ms": "",
@@ -135,6 +137,7 @@ def main() -> None:
     parser.add_argument("--warmup", type=int, default=5)
     parser.add_argument("--dtype", type=parse_dtype, default=torch.float32)
     parser.add_argument("--output", type=Path, default=Path("benchmark/attention_scales.csv"))
+    parser.add_argument("--compile-mode", choices=["both", "eager", "compiled"], default="both")
     args = parser.parse_args()
 
     if not torch.cuda.is_available():
@@ -146,6 +149,7 @@ def main() -> None:
         "seq_len",
         "d_model",
         "dtype",
+        "implementation",
         "status",
         "forward_mean_ms",
         "forward_std_ms",
@@ -159,12 +163,20 @@ def main() -> None:
     with args.output.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for d_model in D_MODELS:
+        attention_fns = []
+        if args.compile_mode in {"both", "eager"}:
+            attention_fns.append(("eager", attention))
+        if args.compile_mode in {"both", "compiled"}:
+            torch.compiler.reset()
+            attention_fns.append(("compiled", torch.compile(attention)))
+
+        for implementation, attention_fn in attention_fns:
             for seq_len in SEQ_LENS:
-                result = run_config(seq_len, d_model, args)
-                writer.writerow(result)
-                f.flush()
-                print(result)
+                for d_model in D_MODELS:
+                    result = run_config(seq_len, d_model, implementation, attention_fn, args)
+                    writer.writerow(result)
+                    f.flush()
+                    print(result)
 
 
 if __name__ == "__main__":

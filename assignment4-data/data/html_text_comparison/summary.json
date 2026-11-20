@@ -1,0 +1,19 @@
+{
+  "warc": "data/example.warc.gz",
+  "wet": "data/example.warc.wet.gz",
+  "resiliparse_version": "0.15.2",
+  "fastwarc_version": "0.15.2",
+  "main_content": false,
+  "links": false,
+  "limit": 0,
+  "wet_records": 19637,
+  "html_records": 19871,
+  "extracted_records": 19871,
+  "matched_records": 19633,
+  "empty_extractions": 546,
+  "extracted_chars": 172187986,
+  "matched_extracted_chars": 172183431,
+  "matched_wet_chars": 134996829,
+  "errors": [],
+  "matched_char_ratio": 1.275462781425777
+}

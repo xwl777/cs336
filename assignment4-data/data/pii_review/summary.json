@@ -1,0 +1,17 @@
+{
+  "seed": 42,
+  "documents": 19871,
+  "documents_with_replacements": 6978,
+  "emails": 10137,
+  "phones": 6505,
+  "ips": 478,
+  "sample_size": 20,
+  "manual_review": {
+    "documents_reviewed": 20,
+    "documents_with_definite_phone_false_positives": 1,
+    "documents_with_observed_phone_false_negatives": 14,
+    "documents_with_partial_international_format": 2,
+    "sampled_documents_with_ip_replacements": 0,
+    "limitations": "Not exhaustive span annotations; no recall/precision estimate; non-US formats outside primary coverage."
+  }
+}
